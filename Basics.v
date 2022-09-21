@@ -241,4 +241,129 @@ Module NatPlayground2.
     
     Example test_mult1: (mult 3 3) = 9.
     Proof. simpl. reflexivity. Qed.    
+
+    Fixpoint minus (n m:nat) : nat :=
+        match n, m with
+        | O, _ => O
+        | S _, O => n
+        | S n', S m' => minus n' m'
+        end.
+
+    Example test_minus: (minus 3 3) = 0.
+    Proof. simpl. reflexivity. Qed.         
 End NatPlayground2.
+
+Fixpoint exp (base power : nat) : nat :=
+    match power with
+    | O => S O
+    | S p => mult base (exp base p)
+    end.
+
+Example exp_test: exp 2 3 = 8.
+Proof. simpl. reflexivity. Qed.
+
+Fixpoint factorial (n:nat) : nat :=
+    match n with
+    | O => S O
+    | S n' => mult n (factorial n')
+    end.
+
+Example fact_test1: factorial 3 = 6.
+Proof. simpl. reflexivity. Qed.
+Example fact_test2: factorial 5 = mult 10 12.
+Proof. simpl. reflexivity. Qed.
+
+Notation "x + y" := (plus x y) (at level 50, left associativity) : nat_scope.
+Notation "x - y" := (minus x y) (at level 50, left associativity) : nat_scope.
+Notation "x * y" := (mult x y) (at level 40, left associativity) : nat_scope.
+
+Check ((0 + 1) + 1) : nat.
+
+Fixpoint eqb (n m:nat) : bool :=
+    match n with
+    | O => match m with
+           | O => true
+           | S m' => false
+           end
+    | S n' => match m with
+           | O => false
+           | S m' => eqb n' m'
+           end
+    end.
+
+Fixpoint eqb' (n m:nat) : bool :=
+    match n, m with
+    | S n', S m' => eqb' n' m'
+    | O, O => true
+    | _, _ => false
+    end.
+
+Example eqb_test: eqb 3 3 = true.
+Proof. simpl. reflexivity. Qed.
+
+Example eqb'_test: eqb' 6 19 = false.
+Proof. simpl. reflexivity. Qed.
+
+Example eqb'_test2: eqb 3 3 = true.
+Proof. simpl. reflexivity. Qed.
+
+Fixpoint leb (n m:nat) : bool :=
+    match n with
+    | O => true
+    | S n' => match m with
+              | O => false
+              | S m' => leb n' m'
+              end   
+    end.
+    
+Example leb_test: leb 3 2 = false.
+Proof. simpl. reflexivity. Qed.
+
+Example leb_test2: leb 2 3 = true.
+Proof. simpl. reflexivity. Qed.
+
+Notation "x =? y" := (eqb x y) (at level 70) : nat_scope.
+Notation "x <=? y" := (leb x y) (at level 70) : nat_scope.
+
+Example test_leb3: 3 <=? 3 = true.
+Proof. simpl. reflexivity. Qed.
+
+Definition ltb (n m:nat) : bool :=
+    match n, m with
+    | S n', S m' => leb (S n') m'
+    | _, O => false
+    | O, _ => true
+    end. 
+
+    Notation "x <? y" := (ltb x y) (at level 70) : nat_scope.
+    Example test_ltb1: (ltb 2 2) = false.
+    Proof. simpl. reflexivity. Qed.
+    Example test_ltb2: (ltb 2 4) = true.
+    Proof. simpl. reflexivity. Qed. 
+    Example test_ltb3: (ltb 4 2) = false.
+    Proof. simpl. reflexivity. Qed.
+
+    Theorem plus_O_n : forall n : nat, 0 + n = n.
+    Proof. intros n. simpl. reflexivity. Qed.
+
+    Theorem plus_O_n': forall n : nat, 0 + n = n.
+    Proof.
+        intros n. simpl. reflexivity.
+    Qed.
+
+    Theorem plus_1_1 : forall n : nat, 1 + n = S n.
+    Proof.
+        intros n. reflexivity.
+    Qed.
+
+    Theorem mult_0_1: forall n : nat, 0 * n = 0.
+    Proof.
+        intros n. reflexivity.
+    Qed.
+
+
+
+
+    
+    
+    
