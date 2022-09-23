@@ -361,9 +361,167 @@ Definition ltb (n m:nat) : bool :=
         intros n. reflexivity.
     Qed.
 
+Theorem plus_id_example: forall n m:nat, n = m -> n + n = m + m.
+Proof.
+    (*move both quantifiers into the context: *)
+    intros n m.
+    (*move the hypothesis into the context: *)
+    intros hypothesis.
+    (*rewrite the goal using the hypothesis: *)
+    rewrite -> hypothesis.
+    reflexivity.
+Qed.
+
+Theorem plus_id_example': forall n m:nat, n = m -> n + n = m + m.
+Proof.
+    intros n m.
+    intros hypothesis.
+    rewrite <- hypothesis.
+    reflexivity.
+Qed.
+
+Theorem plus_id_exercise: forall n m o : nat, n = m -> m = o -> n + m = m + o.
+Proof.
+    intros n m o.
+    intros hypothesis1.
+    rewrite -> hypothesis1.
+    intros hypothesis2.
+    rewrite hypothesis2.
+    reflexivity.
+Qed.
+
+Check mult_n_O.
+Check mult_n_Sm.
+
+Theorem mult_n_0_m_0 : forall p q : nat, (p * 0) + (q * 0) = 0.
+Proof.
+    intros p q.
+    rewrite <- mult_n_O.
+    rewrite <- mult_n_O.
+    simpl.
+    reflexivity.
+Qed.
+
+
+Theorem mult_n_1: forall p : nat, p * 1 = p.
+Proof.
+    intros p.
+    rewrite <- mult_n_Sm.
+    rewrite <- mult_n_O.
+    simpl.
+    reflexivity.
+Qed.
+
+Theorem plus_1_neq_0_firsttry : forall n : nat, (n + 1) =? 0 = false.
+Proof.
+    intros n.
+    simpl.
+Abort.
+
+Theorem plus_1_neq_0 : forall n : nat, (n + 1) =? 0 = false.
+Proof.
+    intros n. destruct n as [| n'] eqn:E.
+    - reflexivity.
+    - reflexivity.
+Qed.
+
+Theorem negb_involutive : forall b : bool,
+    negb (negb b) = b.
+Proof.
+    intros b.
+    destruct b eqn:E.
+    - reflexivity.
+    - reflexivity.
+Qed.
+
+Theorem andb_commutative : forall b c : bool, andb b c = andb c b.
+Proof.
+    intros b c.
+    destruct b eqn:Eb.
+    - destruct c eqn:Ec.
+     + reflexivity.
+     + reflexivity.
+    - destruct c eqn:Ec.
+     + reflexivity.
+     + reflexivity.
+Qed.
+
+Theorem nadb3_exchange : forall a b c : bool, andb (andb a b) c = andb (andb a c) b.
+Proof.
+ intros a b c.
+ destruct a eqn:Ea.
+  * destruct b eqn:Eb.
+   ** destruct c eqn:Ec.
+    - reflexivity.
+    - reflexivity.
+   ** destruct c eqn:Ec.
+    - reflexivity.
+    - reflexivity.
+  * destruct b eqn:Eb.
+   ** destruct c eqn:Ec.
+    - reflexivity.
+    - reflexivity.
+   ** destruct c eqn:Ec.
+    - reflexivity.
+    - reflexivity.            
+Qed.
+
+Theorem andb_true_elim2 : forall b c : bool, andb b c = true -> c = true.
+Proof.
+  intros b c.
+  destruct b eqn:Eb.
+    * destruct c eqn:Ec.
+      { simpl. intros hypothesis. assumption. }
+      { simpl. intros hypothesis. assumption. }
+    * destruct c eqn:Ec.
+      { simpl. intros hypothesis. reflexivity. }
+      { simpl. intros hypothesis. assumption. }
+Qed.
+
+Theorem plus_1_neq_0' : forall n : nat, (n + 1) =? 0 = false.
+Proof.
+  intros [|n].
+  reflexivity.
+  reflexivity.
+Qed.
+
+Theorem andb_commutative'' : forall a b : bool, andb a b = andb b a.
+Proof.
+  intros [][].
+  - reflexivity.
+  - reflexivity.
+  - reflexivity.
+  - reflexivity.
+Qed.
+
+Theorem zero_nbeq_plus_1 : forall n : nat, 0 =? (n + 1) = false.
+Proof.
+  intros [|n].
+  reflexivity.
+  reflexivity. 
+Qed.
+
+(*Fixpoint func (n : nat) : nat :=
+  match n with
+  | O => 1
+  | S n' => func O
+  end.*)
+
+Theorem identity_fn_applied_twice : 
+  forall (f : bool -> bool), 
+  (forall (x : bool) , f x = x) ->
+  forall (b : bool), f (f b) = b.
+Proof.
+  intros f hypothesis [].
+  - rewrite -> hypothesis.
+    rewrite -> hypothesis.
+    reflexivity.
+  - rewrite -> hypothesis.
+    rewrite -> hypothesis.
+    reflexivity.
+Qed.
 
 
 
-    
-    
-    
+
+
