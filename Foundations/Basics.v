@@ -602,8 +602,8 @@ Fixpoint incr (m : bin) : bin :=
 Fixpoint bin_to_nat (m:bin) : nat := 
   match m with
   | Z => O
-  | B0 m' => (bin_to_nat m') + (bin_to_nat m')
-  | B1 m' => S ((bin_to_nat m') + (bin_to_nat m'))
+  | B0 m' => 2 * (bin_to_nat m')
+  | B1 m' => 1 + (2 * (bin_to_nat m'))
   end.
 
 Example test_bin_incr1 : (incr (B1 Z)) = B0 (B1 Z).
@@ -620,3 +620,6 @@ Proof. reflexivity. Qed.
 Example test_bin_incr6 :
         bin_to_nat (incr (incr (B1 Z))) = 2 + bin_to_nat (B1 Z).
 Proof. reflexivity. Qed. 
+
+Check day.
+Check tuesday.
