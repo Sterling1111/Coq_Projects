@@ -62,8 +62,24 @@ Proof. simpl. reflexivity. Qed.
 Example test_orb4: (orb false false) = false.
 Proof. simpl. reflexivity. Qed.
 
+Definition xorb (a b : bool) : bool := 
+  match a with
+  | false => b
+  | true => negb b
+  end.
+
+Example xorb_test1: xorb true true = false.
+Proof. reflexivity. Qed.
+Example xorb_test2: xorb true false = true.
+Proof. reflexivity. Qed.
+Example xorb_test3: xorb false true = true.
+Proof. reflexivity. Qed.
+Example xorb_test4: xorb false true = true.
+Proof. reflexivity. Qed.
+
 Notation "x && y" := (andb x y).
 Notation "x || y" := (orb x y).
+Notation "x ^ y" := (xorb x y).
 
 Example test_orb5: true && false = false.
 Proof. simpl. reflexivity. Qed.
@@ -521,7 +537,86 @@ Proof.
     reflexivity.
 Qed.
 
+Theorem negation_fn_applied_twice : 
+  forall (f : bool -> bool), 
+  (forall (x : bool), f x = negb x) ->
+  forall (b : bool), f (f b) = b.
+Proof.
+  intros f hypothesis [].
+  - rewrite -> hypothesis.
+    rewrite -> hypothesis.
+    reflexivity.
+  - rewrite -> hypothesis.
+    rewrite -> hypothesis.
+    reflexivity.
+Qed.
 
+Theorem andb_eq_orb : forall (b c : bool), (andb b c = orb b c) -> b = c.
+Proof.
+  intros [][].
+  - simpl. intros hypothesis. assumption.
+  - simpl. intros hypothesis. rewrite -> hypothesis. reflexivity.
+  - simpl. intros hypothesis. assumption.
+  - simpl. intros hypothesis. assumption.
+Qed.
 
+Theorem xor_a_b_a_is_b : forall a b : bool, xorb (xorb a b) a = b.
+Proof.
+  intros [][].
+  - reflexivity.
+  - reflexivity.
+  - reflexivity.
+  - reflexivity. 
+Qed.
 
+Theorem xor_commutative : forall a b : bool, 
+  xorb a b = xorb b a.
+Proof.
+  intros [][].
+  - reflexivity.
+  - reflexivity.
+  - reflexivity.
+  - reflexivity.
+Qed.
 
+Check xor_a_b_a_is_b.
+
+Compute true ^ false.
+
+Compute true ^ false ^ true ^ true ^ false.
+Check xor_a_b_a_is_b.
+Check xor_commutative.
+
+Inductive bin : Type :=
+  | Z
+  | B0 (n : bin)
+  | B1 (n : bin).
+
+Fixpoint incr (m : bin) : bin := 
+  match m with
+  | Z => (B1 Z)
+  | B0 m' => B1 m' 
+  | B1 m' => B0 (incr m')
+  end.
+
+Fixpoint bin_to_nat (m:bin) : nat := 
+  match m with
+  | Z => O
+  | B0 m' => (bin_to_nat m') + (bin_to_nat m')
+  | B1 m' => S ((bin_to_nat m') + (bin_to_nat m'))
+  end.
+
+Example test_bin_incr1 : (incr (B1 Z)) = B0 (B1 Z).
+Proof. reflexivity. Qed.
+Example test_bin_incr2 : (incr (B0 (B1 Z))) = B1 (B1 Z).
+Proof. reflexivity. Qed.  
+Example test_bin_incr3 : (incr (B1 (B1 Z))) = B0 (B0 (B1 Z)).
+Proof. reflexivity. Qed.
+Example test_bin_incr4 : bin_to_nat (B0 (B1 Z)) = 2.
+Proof. reflexivity. Qed.
+Example test_bin_incr5 :
+        bin_to_nat (incr (B1 Z)) = 1 + bin_to_nat (B1 Z).
+Proof. reflexivity. Qed.
+Example test_bin_incr6 :
+        bin_to_nat (incr (incr (B1 Z))) = 2 + bin_to_nat (B1 Z).
+Proof. reflexivity. Qed. 
