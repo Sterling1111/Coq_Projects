@@ -94,3 +94,31 @@ Proof.
     {rewrite add_comm. simpl. rewrite add_comm. reflexivity. }
   rewrite -> H. reflexivity.
   Qed.
+
+Theorem add_assoc' : forall n m p : nat, 
+  n + (m + p) = (n + m) + p.
+Proof.
+  intros n m p.
+  induction n as [| k IH].
+  reflexivity.
+  simpl. rewrite -> IH. reflexivity.
+Qed.
+
+Theorem add_assoc'' : forall n m p : nat, 
+  n + (m + p) = (n + m) + p.
+Proof.
+  intros n m p.
+  induction n as [| k IH].
+  (*n = 0*)
+  reflexivity.
+  (*n = S k*)
+  simpl. rewrite IH. reflexivity. 
+Qed.
+
+Theorem add_shuffle3 : forall n m p : nat,
+  n + (m + p) = m + (n + p).
+Proof.
+  intros n m p.
+  rewrite -> add_assoc.
+  
+Qed.
