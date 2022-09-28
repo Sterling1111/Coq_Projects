@@ -603,7 +603,7 @@ Fixpoint bin_to_nat (m:bin) : nat :=
   match m with
   | Z => O
   | B0 m' => 2 * (bin_to_nat m')
-  | B1 m' => 1 + (2 * (bin_to_nat m'))
+  | B1 m' => 2 * (bin_to_nat m') + 1
   end.
 
 Example test_bin_incr1 : (incr (B1 Z)) = B0 (B1 Z).
