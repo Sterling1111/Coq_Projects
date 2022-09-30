@@ -254,3 +254,127 @@ Proof.
   rewrite -> H. reflexivity.
 Qed.
 
+Compute bin_to_nat (B1 Z).
+
+Fixpoint nat_to_bin (n:nat) : bin :=
+  match n with
+  | O => Z
+  | S n' => incr (nat_to_bin n')
+  end.
+
+Theorem nat_bin_nat : forall n, bin_to_nat (nat_to_bin n) = n.
+Proof.
+  induction n as [| k IH].
+  simpl. reflexivity.
+  simpl. rewrite -> bin_to_nat_pres_incr. rewrite -> IH.
+  rewrite -> add_comm. rewrite -> plus_1_1. reflexivity.
+Qed.
+
+Theorem bin_nat_bin_fails : forall b, nat_to_bin (bin_to_nat b) = b.
+Proof.
+Abort.
+
+Lemma double_incr : forall n : nat, double (S n) = S ( S (double n)).
+Proof.
+  intros n.
+  simpl. reflexivity.
+Qed.
+
+Compute bin_to_nat (B0 (B1 Z)).
+
+Definition double_bin (b:bin) : bin := 
+  match b with
+  | Z => Z
+  | B0 b' => B0 (B0 b')
+  | B1 b' => B0 (B1 b')
+  end.
+
+Example double_bin_zero : double_bin Z = Z.
+Proof. simpl. reflexivity. Qed.
+
+Lemma double_incr_bin : forall b, 
+  double_bin (incr b) = incr (incr (double_bin b)).
+Proof.
+  intros [].
+  simpl. reflexivity.
+  simpl. reflexivity.
+  simpl. reflexivity.
+Qed.
+
+Example same_bin : B0 (B0 Z) = Z.
+Proof. simpl. Abort.
+
+Fixpoint normalize (b : bin) : bin :=
+  match b with
+  | Z => Z
+  | B0 b' => double_bin (normalize b')
+  | B1 b' => B1 (normalize b')
+  end.
+
+Compute normalize (B0 (B0 Z)).
+Compute normalize (B0 (B0 (B1 (B0 Z)))).
+
+Compute bin_to_nat (B0 (B0 (B1 (B0 Z)))).
+
+Lemma Sn_n_plus_1 : forall n, S n = n + 1.
+Proof.
+  induction n as [| k IH].
+  simpl. reflexivity.
+  simpl. rewrite -> IH. reflexivity.
+Qed.
+
+Lemma double_ab : forall a b : nat, double (a + b) = double a + double b.
+Proof.
+  intros a b.
+  induction a as [| k IH].
+  simpl. reflexivity.
+  simpl. rewrite -> IH. reflexivity.
+Qed.
+
+Lemma double_bin_to_nat : forall b, 
+  bin_to_nat b + bin_to_nat b = double (bin_to_nat b).
+Proof.
+  induction b as [| k IH | k IH].
+  simpl. reflexivity.
+  simpl. rewrite -> add_0_r. rewrite -> IH. rewrite <- double_ab. rewrite <- double_plus. reflexivity.
+  simpl. rewrite -> add_0_r. rewrite -> IH. rewrite -> double_plus. rewrite -> double_plus. reflexivity.
+Qed.
+
+Lemma nat_to_bin_S_n : forall n : nat, 
+  nat_to_bin (S n) = incr (nat_to_bin n).
+Proof.
+  intros [].
+  simpl. reflexivity.
+  simpl. reflexivity.
+Qed.
+
+Lemma natural_to_bin_double_bin_to_nat : forall n,
+  nat_to_bin (double n) = double_bin (nat_to_bin (n)).
+Proof.
+  induction n as [| k IH].
+  simpl. reflexivity.
+  rewrite -> nat_to_bin_S_n. rewrite -> double_incr_bin. rewrite <- IH. rewrite -> double_incr.
+  rewrite -> nat_to_bin_S_n. rewrite -> nat_to_bin_S_n. reflexivity.
+Qed.
+
+Lemma incr_double_bin : forall b, 
+  incr (double_bin b) = B1 b.
+Proof.
+  intros [].
+  simpl. reflexivity.
+  simpl. reflexivity.
+  simpl. reflexivity.
+Qed.
+
+Theorem bin_nat_bin : forall b, nat_to_bin (bin_to_nat b) = normalize b.
+Proof.
+  induction b as [| k IH | k IH].
+  - simpl. reflexivity.
+  - simpl. rewrite -> add_0_r. rewrite <- IH. rewrite -> double_bin_to_nat . 
+    rewrite -> natural_to_bin_double_bin_to_nat. reflexivity.
+  - simpl.  rewrite -> add_0_r. rewrite <- Sn_n_plus_1. rewrite -> nat_to_bin_S_n. 
+    rewrite <- double_plus. rewrite -> natural_to_bin_double_bin_to_nat. rewrite -> IH.
+    rewrite -> incr_double_bin. reflexivity.
+Qed.
+
+
