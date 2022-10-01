@@ -348,7 +348,7 @@ Proof.
   simpl. reflexivity.
 Qed.
 
-Lemma natural_to_bin_double_bin_to_nat : forall n,
+Lemma nat_to_bin_double_n : forall n,
   nat_to_bin (double n) = double_bin (nat_to_bin (n)).
 Proof.
   induction n as [| k IH].
@@ -371,9 +371,9 @@ Proof.
   induction b as [| k IH | k IH].
   - simpl. reflexivity.
   - simpl. rewrite -> add_0_r. rewrite <- IH. rewrite -> double_bin_to_nat . 
-    rewrite -> natural_to_bin_double_bin_to_nat. reflexivity.
+    rewrite -> nat_to_bin_double_n. reflexivity.
   - simpl.  rewrite -> add_0_r. rewrite <- Sn_n_plus_1. rewrite -> nat_to_bin_S_n. 
-    rewrite <- double_plus. rewrite -> natural_to_bin_double_bin_to_nat. rewrite -> IH.
+    rewrite <- double_plus. rewrite -> nat_to_bin_double_n. rewrite -> IH.
     rewrite -> incr_double_bin. reflexivity.
 Qed.
 
