@@ -595,4 +595,3 @@ Inductive baz : Type :=
 (* The type baz has no definable elements because to define an element
 of type baz we must have first defined an element of type baz which is
 endlessly recursive*)
-
