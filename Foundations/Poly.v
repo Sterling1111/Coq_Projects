@@ -545,7 +545,7 @@ Proof. reflexivity. Qed.
 (*n X is a function that takes *)
 
 Definition exp (n m : cnat) : cnat :=
-  fun (X : Type) (f : X -> X) (x : X) => m (X -> X) (n X) f x.
+  fun (X : Type) (f : X -> X) (x : X) => (m (X -> X) (n X) f) x.
 Example exp_1 : exp two two = plus two two.
 Proof. reflexivity. Qed.
 Example exp_2 : exp three zero = one.
@@ -554,6 +554,5 @@ Example exp_3 : exp three two = plus (mult two (mult two two)) one.
 Proof. reflexivity. Qed.
 
 End Church.
-
 
 End Exercises.
