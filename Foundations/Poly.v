@@ -485,6 +485,17 @@ Proof.
   reflexivity.
 Qed.
 
+Theorem nth_error_bound : forall (X : Type) (l : list X) (n : nat),
+  length l = n -> nth_error l n = None.
+Proof.
+  intros X l.
+  induction l as [| h l' IH].
+  - intros n H. simpl. reflexivity.
+  - intros n H. destruct n as [| n'] eqn:En.
+    * simpl. discriminate.
+    * simpl. apply IH. simpl in H. injection H as H2. apply H2. 
+Qed.
+
 Module Church.
 
 Definition cnat := forall X : Type, (X -> X) -> X -> X.
