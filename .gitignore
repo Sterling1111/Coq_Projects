@@ -19,5 +19,10 @@ Foundations/Poly.vo
 Foundations/Poly.vok
 Foundations/Poly.vos
 Foundations/.Poly.aux
+Foundations/Tactics.glob
+Foundations/Tactics.vo
+Foundations/Tactics.vok
+Foundations/Tactics.vos
+Foundations/.Tactics.aux
 Foundations/Makefile
 Foundations/Makefile.conf
