@@ -103,9 +103,9 @@ Theorem S_injective : forall (n m : nat),
   S n = S m ->
   n = m.
 Proof.
-  intros n m H1.
+  intros n m H.
   assert (H2: n = pred (S n)). { reflexivity. }
-  rewrite H2. rewrite H1. simpl. reflexivity.
+  rewrite H2. rewrite H. simpl. reflexivity.
 Qed.
 
 Theorem S_injective' : forall (n m : nat),
@@ -171,6 +171,7 @@ Proof.
   intros.
   rewrite -> H. reflexivity.
 Qed.
+
 
 Theorem eq_implies_succ_equal : forall (n m : nat),
   n = m -> S n = S m.
@@ -491,3 +492,81 @@ Proof.
   rewrite <- H in H0. apply H0.
 Qed.
 
+Definition split_combine_statement : Prop := 
+  forall X Y (l1 : list X) (l2 : list Y),
+  length l1 = length l2 -> split (combine l1 l2) = (l1, l2).
+
+Theorem split_combine : split_combine_statement.
+Proof.
+  unfold split_combine_statement.
+  intros X Y.
+  induction l1 as [| h t IH].
+  - intros. simpl. f_equal. simpl in H. destruct l2. 
+    * reflexivity.
+    * simpl in H. discriminate H.
+  - intros. simpl. destruct l2. 
+    * simpl in H. discriminate H.
+    * simpl. simpl in H. injection H as H'. rewrite -> IH.
+      reflexivity. apply H'.
+Qed.
+
+Theorem filter_exercise : forall (X : Type) (test : X -> bool) (x : X) (l lf : list X),
+  filter test l = x :: lf -> test x = true.
+Proof.
+  intros.
+  induction l as [| h t IH].
+  - intros. simpl in H. discriminate H.
+  - intros. simpl in H. destruct (test h) eqn:E.
+    * injection H as H2 H3. rewrite <- H2. apply E.
+    * apply IH. apply H.
+Qed.  
+
+Fixpoint forallb {X : Type} (f : X -> bool) (l : list X) : bool :=
+  match l with
+  | nil => true
+  | h :: t => match f h with
+              | true => forallb f t 
+              | false => false
+              end
+  end.
+
+Example test_forallb_1 : forallb odd [1;3;5;7;9] = true.
+Proof. reflexivity. Qed.
+Example test_forallb_2 : forallb negb [false;false] = true.
+Proof. reflexivity. Qed.
+Example test_forallb_3 : forallb even [0;2;4;5] = false.
+Proof. reflexivity. Qed.
+Example test_forallb_4 : forallb (eqb 5) [] = true.
+Proof. reflexivity. Qed.
+  
+Fixpoint existsb {X : Type} (f : X -> bool) (l : list X) : bool :=
+  match l with
+  | nil => false
+  | h :: t => match f h with
+              | true => true
+              | false => existsb f t
+              end
+  end.
+
+Example test_existsb_1 : existsb (eqb 5) [0;2;3;6] = false.
+Proof. reflexivity. Qed.
+Example test_existsb_2 : existsb (andb true) [true;true;false] = true.
+Proof. reflexivity. Qed.
+Example test_existsb_3 : existsb odd [1;0;0;0;0;3] = true.
+Proof. reflexivity. Qed.
+Example test_existsb_4 : existsb even [] = false.
+Proof. reflexivity. Qed.
+
+Definition existsb' {X : Type} (f : X -> bool) (l : list X) : bool := 
+  negb (forallb (fun x => negb (f x)) l).
+
+Theorem existsb_existsb' : forall (X : Type) (test : X -> bool) (l : list X),
+  existsb test l = existsb' test l.
+Proof.
+  intros X test.
+  induction l as [| h t IH].
+  - reflexivity.
+  - unfold existsb'. simpl. destruct (test h) eqn:E1.
+    * (*test h = true*) simpl. reflexivity.
+    * (*test h = false*) simpl. rewrite -> IH. reflexivity.
+Qed.
