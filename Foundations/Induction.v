@@ -376,5 +376,3 @@ Proof.
     rewrite <- double_plus. rewrite -> nat_to_bin_double_n. rewrite -> IH.
     rewrite -> incr_double_bin. reflexivity.
 Qed.
-
-

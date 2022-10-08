@@ -24,5 +24,10 @@ Foundations/Tactics.vo
 Foundations/Tactics.vok
 Foundations/Tactics.vos
 Foundations/.Tactics.aux
+Foundations/Logic.glob
+Foundations/Logic.vo
+Foundations/Logic.vok
+Foundations/Logic.vos
+Foundations/.Lodic.aux
 Foundations/Makefile
 Foundations/Makefile.conf
