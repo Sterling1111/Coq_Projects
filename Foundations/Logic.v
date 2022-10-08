@@ -467,3 +467,102 @@ Proof.
     * simpl. rewrite -> add_comm. rewrite plus_n_Sm. rewrite plus_n_Sm. apply leb_n_plus.
 Qed.
 
+Fixpoint In {A : Type} (x : A) (l : list A) : Prop :=
+  match l with
+  | [] => False
+  | h :: t => h = x \/ In x t
+  end.
+
+Example In_example_1 : In 4 [1; 2; 3; 4; 5].
+Proof.
+  simpl. right. right. right. left. reflexivity.
+Qed.
+
+Example In_example_2 :
+  forall n, In n [2; 4] ->
+  exists n', n = 2 * n'.
+Proof.
+  simpl.
+  intros n [H | [H | []]].
+  - exists 1. rewrite <- H. reflexivity.
+  - exists 2. rewrite <- H. reflexivity.
+Qed.
+
+Theorem In_map : forall (A B : Type) (f : A -> B) (l : list A) (x : A),
+  In x l -> In (f x) (map f l).
+Proof.
+  intros A B f l x.
+  induction l as [| h t IH].
+  - simpl. intros [].
+  - simpl. intros [H | H].
+    * left. rewrite -> H. reflexivity.
+    * right. apply IH. apply H. 
+Qed.
+
+Theorem In_map_iff : forall (A B : Type) (f : A -> B) (l : list A) (y : B),
+  In y (map f l) <-> exists x, f x = y /\ In x l.
+Proof.
+  intros. induction l as [| h t IH].
+  - simpl. split. 
+    * intros [].
+    * intros [x [H1 []]].
+  - split. 
+    * simpl. intros [H | H].
+      + exists h. split.
+        -- apply H.
+        -- left. reflexivity.
+      + apply IH in H. destruct H as [x' [H1 H2]]. exists x'. split.
+        -- apply H1.
+        -- right. apply H2.
+    * simpl. intros [x [H1 [H2 | H3]]]. 
+      + left. rewrite <- H1. rewrite -> H2. reflexivity.
+      + right. apply IH. exists x. split.
+        -- apply H1.
+        -- apply H3.
+Qed.
+
+Theorem In_app_iff : forall A l l' (a:A),
+  In a (l++l') <-> In a l \/ In a l'.
+Proof.
+  intros A l. induction l as [|a' l' IH].
+  - intros. split.
+    * simpl. intros H. right. apply H.
+    * simpl. intros [[] | H].
+      + apply H.
+  - intros. simpl. split.
+    * intros [H | H].
+      + left. left. apply H.
+      + rewrite <- or_assoc. right. apply IH. apply H.
+    * intros [[H | H] | H].
+      + left. apply H.
+      + right. apply IH. left. apply H.
+      + right. apply IH. right. apply H.
+Qed.
+
+Fixpoint All {T : Type} (P : T -> Prop) (l : list T) : Prop :=
+  match l with
+  | [] => True
+  | h :: t => P h /\ All P t
+  end.
+
+Theorem All_in : forall T (P : T -> Prop) (l : list T),
+  (forall x, In x l -> P x) <-> All P l.
+Proof.
+  intros. induction l as [| h t IH].
+  - split.
+    * simpl. intros H. apply I.
+    * simpl. intros H1 x H2. apply ex_falso_quodlibet. apply H2.
+  - simpl. split.
+    * intros H. split.
+      + apply H. left. reflexivity.
+      + apply IH. intros x H2. apply H. right. apply H2.
+    * intros [H1 H2] x [H3 | H4].
+      + rewrite -> H3 in H1. apply H1.
+      + apply H2 to IH.
+Qed.
+
+Theorem : .
+Proof.
+  
+Qed.
+
