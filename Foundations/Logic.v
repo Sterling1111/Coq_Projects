@@ -558,11 +558,190 @@ Proof.
       + apply IH. intros x H2. apply H. right. apply H2.
     * intros [H1 H2] x [H3 | H4].
       + rewrite -> H3 in H1. apply H1.
-      + apply H2 to IH.
+      + apply iff_sym in IH. assert (H5 : (forall x : T, In x t -> P x)).
+        { apply IH. apply H2. }
+        apply H5. apply H4.
 Qed.
 
-Theorem : .
+Definition combine_odd_even (Podd Peven : nat -> Prop) : nat -> Prop :=
+  (fun n => if odd n then Podd n else Peven n).
+
+Theorem combine_odd_even_intro : forall (Podd Peven : nat -> Prop) (n : nat),
+  (odd n = true -> Podd n) -> 
+  (odd n = false -> Peven n) ->
+  combine_odd_even Podd Peven n.
 Proof.
-  
+  intros Podd Peven n H1 H2.
+  unfold combine_odd_even. destruct (odd n).
+  - apply H1. reflexivity.
+  - apply H2. reflexivity. 
 Qed.
 
+Theorem combine_odd_even_elim_odd : forall (Podd Peven : nat -> Prop) (n : nat),
+  combine_odd_even Podd Peven n ->
+  odd n = true -> Podd n.
+Proof.
+  intros Podd Peven n H1 H2.
+  unfold combine_odd_even in H1. rewrite H2 in H1. apply H1. 
+Qed.
+
+Theorem combine_odd_even_elim_even : forall (Podd Peven : nat -> Prop) (n : nat),
+  combine_odd_even Podd Peven n ->
+  odd n = false -> Peven n.
+Proof.
+  intros Podd Peven n H1 H2.
+  unfold combine_odd_even in H1. rewrite -> H2 in H1. apply H1.
+Qed.
+
+Check plus : nat -> nat -> nat.
+Check add_comm : forall n m : nat, n + m = m + n.
+
+Lemma add_comm3 : forall x y z,
+  x + (y + z) = (z + y) + x.
+Proof.
+  intros.
+  rewrite -> add_comm.
+  rewrite -> add_comm.
+Abort.
+
+Lemma add_comm3_take2 :
+  forall x y z, x + (y + z) = (z + y) + x.
+Proof.
+  intros x y z.
+  rewrite add_comm.
+  assert (H : y + z = z + y).
+    { rewrite add_comm. reflexivity. }
+  rewrite H.
+  reflexivity.
+Qed.
+
+Lemma add_comm3_take3 :
+  forall x y z, x + (y + z) = (z + y) + x.
+Proof.
+  intros x y z.
+  rewrite add_comm.
+  rewrite (add_comm y z).
+  reflexivity.
+Qed.
+
+Theorem in_not_nil :
+  forall A (x : A) (l : list A), In x l -> l <> [].
+Proof.
+  intros A x l H. unfold not. intro Hl.
+  rewrite Hl in H.
+  simpl in H.
+  apply H.
+Qed.
+
+Lemma in_not_nil_42 :
+  forall l : list nat, In 42 l -> l <> [].
+Proof.
+  intros l H.
+  Fail apply in_not_nil.
+Abort.
+
+Lemma in_not_nil_42_take2 :
+  forall l : list nat, In 42 l -> l <> [].
+Proof.
+  intros l H.
+  apply in_not_nil with (x := 42).
+  apply H.
+Qed.
+
+Lemma in_not_nil_42_take3 :
+  forall l : list nat, In 42 l -> l <> [].
+Proof.
+  intros l H.
+  apply in_not_nil in H.
+  apply H.
+Qed.
+
+Lemma in_not_nil_42_take4 :
+  forall l : list nat, In 42 l -> l <> [].
+Proof.
+  intros l H.
+  apply (in_not_nil nat 42 l).
+  apply H.
+Qed.
+
+Lemma in_not_nil_42_take5 :
+  forall l : list nat, In 42 l -> l <> [].
+Proof.
+  intros l H.
+  apply (in_not_nil _ _ _ H).
+Qed.
+
+Example lemma_application_ex :
+  forall {n : nat} {ns : list nat},
+    In n (map (fun m => m * 0) ns) ->
+    n = 0.
+Proof.
+  intros n ns H.
+  destruct (proj1 _ _ (In_map_iff _ _ _ _ _) H)
+           as [m [Hm _]].
+  rewrite mul_0_r in Hm. rewrite <- Hm. reflexivity.
+Qed.
+
+Example function_equality_ex1 : 
+  (fun x => 3 + x) = (fun x => (pred 4) + x).
+Proof. simpl. reflexivity. Qed.
+
+Example function_equality_ex2 :
+  (fun x => plus x 1) = (fun x => plus 1 x).
+Proof.
+   (* Stuck *)
+Abort.
+
+Axiom functional_extensionality : forall {X Y: Type}
+                                    {f g : X -> Y},
+  (forall (x:X), f x = g x) -> f = g.
+
+Example function_equality_ex2 :
+  (fun x => plus x 1) = (fun x => plus 1 x).
+Proof.
+  apply functional_extensionality. intros x.
+  apply add_comm.
+Qed.
+
+Print Assumptions function_equality_ex2.
+
+Fixpoint rev_append {X : Type} (l1 l2 : list X) : list X :=
+  match l1 with
+  | [] => l2
+  | h :: t => rev_append t (h :: l2)
+  end.
+  
+Definition tr_rev {X : Type} (l : list X) : list X := 
+  rev_append l [].
+
+Lemma rev_append_lem : forall (X : Type) (l1 l2 l3 : list X),
+  rev_append l1 (l2 ++ l3) = (rev_append l1 l2) ++ l3.
+Proof.
+  intros. generalize dependent l2.
+  induction l1 as [| h t IH].
+  - simpl. reflexivity.
+  - simpl. intros l2. rewrite <- IH. simpl. reflexivity.
+Qed.
+
+Theorem tr_rev_correct' : forall (X : Type) (l : list X),
+  tr_rev l = rev l.
+Proof.
+  intros X l.
+  induction l as [| h t IH].
+  - simpl. reflexivity.
+  - unfold tr_rev. simpl. rewrite <- IH. unfold tr_rev.
+    Set Printing Parentheses. replace (rev_append t [h]) with (rev_append t ([] ++ [h])).
+    * apply rev_append_lem.
+    * simpl. reflexivity.
+Qed.
+
+Theorem tr_rev_correct : forall X, @tr_rev X = @rev X.
+Proof.
+  intro X. apply functional_extensionality. intro x. rename x into l.
+  unfold tr_rev. induction l as [| h t IH].
+  - simpl. reflexivity.
+  - unfold tr_rev. simpl. rewrite <- IH. unfold tr_rev.
+  Set Printing Parentheses. replace (rev_append t [h]) with (rev_append t ([] ++ [h])).
+  * apply rev_append_lem.
+  * simpl. reflexivity.
+Qed.
