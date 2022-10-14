@@ -395,6 +395,7 @@ Proof.
 Qed.
 
 Definition Even (x : nat) : Prop := exists n : nat, x = double n.
+Definition Odd (x : nat) : Prop := exists n : nat, x = S (double n).
 
 Lemma four_is_even : Even 4.
 Proof.
@@ -745,3 +746,123 @@ Proof.
   * apply rev_append_lem.
   * simpl. reflexivity.
 Qed.
+
+Example even_42_bool : even 42 = true.
+Proof. reflexivity. Qed.
+
+Example even_42_prop : Even 42.
+Proof. unfold Even. exists 21. simpl. reflexivity. Qed.
+
+Lemma negb_b_is_not_b : forall b : bool,
+  negb b = true -> b = false.
+Proof.
+  intros b H. destruct b. simpl in H. 
+  - apply symmetry. apply H.
+  - reflexivity.
+Qed.
+
+Lemma even_double : forall k, even (double k) = true.
+Proof.
+  induction k as [| k' IH].
+  - simpl. reflexivity.
+  - simpl. apply IH.
+Qed.
+
+Lemma even_double_conv : forall n, exists k,
+  n = if even n then double k else S (double k).
+Proof.
+  induction n as [| n' IH].
+  - simpl. exists 0. simpl. reflexivity.
+  - destruct (even (S n')) eqn:E1. rewrite -> even_S in E1. apply negb_b_is_not_b in E1.
+    * destruct (even n') eqn:E2 in IH.
+      + rewrite-> E1 in E2. discriminate E2.
+      + destruct IH as [x IH]. exists (S x). rewrite -> IH. simpl. reflexivity.
+    * destruct (even n') eqn:E2.
+      + destruct IH as [x IH]. exists x. rewrite -> IH. reflexivity.
+      + rewrite <- E2 in E1. rewrite even_S in E1. rewrite E2 in E1. simpl in E1. 
+        discriminate E1.
+Qed.
+
+Theorem even_bool_prop : forall n,
+  even n = true <-> Even n.
+Proof.
+  intro n. split.
+  - intro H. destruct (even_double_conv n) as [k Hk].
+    rewrite Hk. rewrite H. unfold Even. exists k. reflexivity.
+  - unfold Even. intros [k H]. rewrite H. apply even_double.  
+Qed.
+
+Theorem Even_plus_Even : forall (n m : nat),
+  Even n /\ Even m -> Even (n + m).
+Proof.
+  intros n m. unfold Even. intros [[x1 H1] [x2 H2]].
+  rewrite -> H1. rewrite -> H2. exists (x1 + x2). rewrite -> double_plus.
+  rewrite -> double_plus. rewrite -> add_assoc. rewrite -> add_comm.
+  rewrite <- add_assoc. rewrite -> add_assoc. replace (x1 + x2) with (x2 + x1).
+  - rewrite <- double_plus. reflexivity.
+  - apply add_comm.
+Qed.
+
+Theorem eqb_eq : forall n1 n2 : nat,
+  n1 =? n2 = true <-> n1 = n2.
+Proof.
+  intros n1 n2. split.
+  - intros H. apply eqb_true in H. apply H.
+  - intros H. rewrite -> H. apply eqb_refl.
+Qed.
+
+Fail Definition is_even_prime n := 
+  if n = 2 then true
+  else false.
+
+Example even_1000 : Even 1000.
+Proof. unfold Even. exists 500. simpl. reflexivity. Qed.
+
+Example even_1000' : even 1000 = true.
+Proof. reflexivity. Qed.
+
+Example even_1000'' : Even 1000.
+Proof. apply even_bool_prop. reflexivity. Qed.
+
+Example not_even_1001 : even 1001 = false.
+Proof. reflexivity. Qed.
+
+Example not_even_1001' : ~(Even 1001).
+Proof.
+  rewrite <- even_bool_prop.
+  unfold not. simpl. intro H. discriminate H.
+Qed.
+
+Lemma plus_eqb_example : forall n m p : nat,
+  n =? m = true -> n + p =? m + p = true.
+Proof.
+  intros n m p H.
+  rewrite eqb_eq in H.
+  rewrite H.
+  rewrite eqb_eq.
+  reflexivity.
+Qed.
+
+Theorem andb_true_iff : forall b1 b2 : bool,
+  b1 && b2 = true <-> b1 = true /\ b2 = true.
+Proof.
+  intros b1 b2. split.
+  - intros H. destruct b1 eqn:E1 in H.
+    * simpl in H. rewrite H. rewrite E1. split.
+      + reflexivity.
+      + reflexivity.
+    * simpl in H. discriminate H.
+  - intros [H1 H2]. rewrite -> H1. rewrite -> H2. simpl. reflexivity.
+Qed.
+
+Theorem eqb_neq : forall x y : nat,
+  x =? y = false <-> x <> y.
+Proof.
+  intros x y. split.
+  - intros H. unfold not. rewrite <- not_true_iff_false in H.
+    unfold not in H. intros H2. apply H. rewrite <- eqb_eq in H2.
+    apply H2.
+  - unfold not. intros H. rewrite <- not_true_iff_false.  unfold not.
+    intros H2. apply H. apply eqb_eq in H2. apply H2.
+Qed.
+
