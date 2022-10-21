@@ -1012,21 +1012,26 @@ Proof.
   - right. apply H3.
 Qed.
 
-
-
-Theorem implies_to_or_imp_peirce : implies_to_or -> peirce.
+Theorem implies_to_or_imp_excluded_middle : implies_to_or -> excluded_middle.
 Proof.
-  unfold implies_to_or. unfold peirce. unfold not.
-  intros H1 P Q H2. destruct (H1 (~P) (~(P -> Q))) as [H3 | H3]. 
-  - unfold not. intros H3 H4. apply H3. apply H2. apply H4.
-  - unfold not in H3. apply H2. destruct (H1 (P -> False) False).
-    * apply H3.
-    *  
+  unfold implies_to_or. unfold excluded_middle. unfold not.
+  intros H1 P. destruct (H1 P P) as [H2 | H2].
+  - intro H2. apply H2.
+  - right. apply H2.
+  - left. apply H2.
 Qed.
 
-Theorem peirce_imp_excluded_middle :
-  peirce -> excluded_middle.
+Theorem double_negation_elimination_imp_peirce : 
+  double_negation_elimination -> peirce.
 Proof.
-  
+  unfold double_negation_elimination. unfold peirce. unfold not.
+  intros H1 P Q H2. apply H1. intros H3. apply H3. apply H2. intros H4. 
+  destruct H3. apply H4.
 Qed.
 
+Theorem peirce_imp_double_negation_elimination : 
+  peirce -> double_negation_elimination.
+Proof.
+  unfold peirce. unfold double_negation_elimination. unfold not.
+  intros H1 P H2. apply H1 with (Q := False). intros H3. destruct H2. apply H3.
+Qed.
